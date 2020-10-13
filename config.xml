@@ -33,6 +33,7 @@
     <plugin name="cordova-android-support-gradle-release" source="npm">
         <variable name="ANDROID_SUPPORT_VERSION" value="29.0.0"/>
     </plugin>
+    <preference name="android-targetSdkVersion" value="29" />
 </platform>
 <platform name="ios">
     <allow-intent href="itms:*" />

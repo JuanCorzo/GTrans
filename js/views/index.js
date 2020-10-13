@@ -8,9 +8,20 @@ $(function() {
 	        contentType: 'application/json',
 	        data: JSON.stringify({cedula: cedula, pass: pass}),
 	        success: function (res){
-	        	localStorage.setItem('token', res.data.token);
-	        	localStorage.setItem('userData', JSON.stringify(res.data.userData));
-	            $(location).attr('href','views/app.html');
+	        	localStorage.setItem('tokenGT', res.data.token);
+	        	localStorage.setItem('userDataGT', JSON.stringify(res.data.userData));
+
+	        	let dataUser = JSON.parse(localStorage.getItem('userDataGT'));
+				let empresaSelect = [{id: 8, empresa: "LACAROLINA_GEMA"}];
+				dataUser.empresas = empresaSelect;
+				localStorage.setItem('userDataGT', JSON.stringify(dataUser));
+
+	        	// ANIMACION ROTACION DE BODY
+	        	$("body").addClass("classAnimationBodyLogin");
+	        	setTimeout(function(){
+					$(location).attr('href','views/app.html');	
+				}, 3000);
+
 	            return false;
 	        },
 	        error: function (res){
@@ -21,6 +32,7 @@ $(function() {
     }
     
 	$("#btnlogin").click(function(){
+
 		if($("#inputCedula").val()==""){
 			swal.error('Debe ingresar una cedula');
 			return false;
@@ -35,7 +47,7 @@ $(function() {
 	});
 
 	$(window).resize(function(){
-		if($(window).height() < 570){
+		if($(window).height() < 600){
 			$("#footerLogin").addClass("displayNone");
 		}else{
 			$("#footerLogin").removeClass("displayNone");

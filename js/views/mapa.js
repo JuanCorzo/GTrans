@@ -1,6 +1,6 @@
 $(function () {
 
-    const dataUser = JSON.parse(localStorage.getItem('userData'));
+    const dataUser = JSON.parse(localStorage.getItem('userDataGT'));
 
     
     var LatandLong = {lat: 10.9832981, lng: -74.8017122};
@@ -39,12 +39,13 @@ $(function () {
 
 
     $.ajax({
-        url: urlAPI + "/vehiculos/getVehiculos/"+dataUser.idPropietario,
-        type: "GET",
+        url: urlAPI + "/vehiculos/getVehiculos",
+        type: "POST",
         dataType: 'JSON',
         contentType: 'application/json',
+        data: JSON.stringify({idPropietario: dataUser.idPropietario}),
         beforeSend: function (xhr){ 
-            xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+            xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT'));
         },
         success: function (res){
             $.each(res.data, function(key, value) {
@@ -71,22 +72,24 @@ $(function () {
        // cargarRelojes();
     }
 
-    function getDataVehiculo(codigo) {
+    function getDataVehiculo(vehiculo) {
         $.ajax({
-            url: urlAPI + "/viajes/getDatosUltimoViaje/"+codigo,
-            type: "GET",
+            url: urlAPI + "/viajes/getDatosUltimoViaje",
+            type: "POST",
             dataType: 'JSON',
             contentType: 'application/json',
+            data: JSON.stringify({vehiculo: vehiculo}),
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT'));
             },
             success: function (response) {
                 $(".inpDatosVehiculo").val("N/A");
                 $("#spanVehiculo").text("");
-                $("#inpVehiculoHidden").val(codigo);
+                
                 let data = response.data[0];
                 
-                $("#spanVehiculo").text("(" + codigo + ")");
+                $("#inpVehiculoHidden").val(data["Codigo"]);
+                $("#spanVehiculo").text("(" + data["Codigo"] + ")");
                 $("#inpConductor").val((data["Conductor"]==null)?"N/A":data["Conductor"]);
                 $("#inpTurno").val(data["Turno"]);
                 $("#inpRuta").val(data["Ruta"]);
@@ -109,7 +112,7 @@ $(function () {
             dataType: 'JSON',
             contentType: 'application/json',
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT'));
             },
             success: function (response) {
                 $(".inpDatosVehiculoTracking").val("N/A");
@@ -138,7 +141,7 @@ $(function () {
             dataType: 'JSON',
             contentType: 'application/json',
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
                 $("#btnCargarConsolidado").prop("disabled", true);
             },
             success: function (response) {
@@ -175,7 +178,7 @@ $(function () {
             dataType: 'JSON',
             contentType: 'application/json',
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
                 $("#btnCargarDetalle").prop("disabled", true);
             },
             success: function (response) {
@@ -215,7 +218,7 @@ $(function () {
             contentType: 'application/json',
             data: JSON.stringify({codigo: codigo, fecha1: fecha1, fecha2: fecha2}),
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
                 $("#btnCargarRecorrido").prop("disabled", true);
             },
             success: function (response) {
@@ -380,7 +383,7 @@ $(function () {
             codigo: codigo,
         });
         google.maps.event.addListener(marker, 'click', function () {
-            getDataVehiculo(codigo);
+            getDataVehiculo(codigo+"-LACAROLINA_GEMA");
             getDataVehiculoTracking(codigo);
             AjaxDatosGrillaConsolidado(codigo);
             AjaxDatosGrillaDetalle(codigo);

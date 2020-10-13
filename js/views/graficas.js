@@ -1,6 +1,6 @@
 $(function () {
     
-    const dataUser = JSON.parse(localStorage.getItem('userData'));
+    const dataUser = JSON.parse(localStorage.getItem('userDataGT'));
 
 
     Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
@@ -13,16 +13,17 @@ $(function () {
     // ---------------------------
 
     $.ajax({
-        url: urlAPI + "/vehiculos/getVehiculos/"+dataUser.idPropietario,
-        type: "GET",
+        url: urlAPI + "/vehiculos/getVehiculos",
+        type: "POST",
         dataType: 'JSON',
         contentType: 'application/json',
+        data: JSON.stringify({idPropietario: dataUser.idPropietario}),
         beforeSend: function (xhr){ 
-            xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+            xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT'));
         },
         success: function (res){
             $.each(res.data, function(key, value) {
-                $("#inpVehiculo").append("<option value="+value.codigo+">"+value.codigo+"</option>");
+                $("#inpVehiculo").append("<option value='"+value.codigo+"-LACAROLINA_GEMA'>"+value.codigo+"</option>");
             });
             AjaxGraficaVentasDiarias();
             return false;
@@ -39,24 +40,46 @@ $(function () {
             type: "POST",
             dataType: 'JSON',
             contentType: 'application/json',
-            data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), idPropietario: dataUser.idPropietario}),
+            data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), cedula: dataUser.identificacion, empresas: JSON.stringify(dataUser.empresas)}),
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
                 $("#btnCargar").prop("disabled", true);
             },
             success: function (response) {
                 let fechas = new Array();
-                let data =  new Array();
+                let datas =  new Array();
                 $.each(response.data, function(index, value) {
-                  fechas.push(value.fecha);
-                  data.push(value.total);
+                    let data = [];
+                    $.each(value.data, function(indexV, valueV) {
+                        if(index==0) fechas.push(valueV.fecha);
+                        data.push(valueV.total);
+                    });
+                    datas.push({empresa: value.empresa, data: data});
                 });
-                cargarGraficaTimbradas(fechas, data);
-                return false;
+
+                let datasets = [];
+                $.each(datas, function(indexD, valueD) {
+                    let color = getRandomColor();
+                    datasets.push({
+                      label: valueD.empresa,
+                      lineTension: 0.3,
+                      fill: false,
+                      borderColor: color.normal,
+                      pointRadius: 5,
+                      pointBackgroundColor: color.normal,
+                      pointBorderColor: color.opaco,
+                      pointHoverRadius: 5,
+                      pointHoverBackgroundColor: color.normal,
+                      pointHitRadius: 50,
+                      pointBorderWidth: 2,
+                      data: valueD.data,
+                    });
+                });
+
+                cargarGraficaTimbradas(fechas, datasets);
             },
             error: function (res) {
                 swal.error(res.responseJSON.message);
-                return false;
             },
             complete: function (res){
                 $("#btnCargar").prop("disabled", false);
@@ -70,24 +93,46 @@ $(function () {
             type: "POST",
             dataType: 'JSON',
             contentType: 'application/json',
-            data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), idPropietario: dataUser.idPropietario}),
+            data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), cedula: dataUser.identificacion, empresas: JSON.stringify(dataUser.empresas)}),
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
                 $("#btnCargar").prop("disabled", true);
             },
             success: function (response) {
                 let fechas = new Array();
-                let data =  new Array();
+                let datas =  new Array();
                 $.each(response.data, function(index, value) {
-                  fechas.push(value.fecha);
-                  data.push(value.total);
+                    let data = [];
+                    $.each(value.data, function(indexV, valueV) {
+                        if(index==0) fechas.push(valueV.fecha);
+                        data.push(valueV.total);
+                    });
+                    datas.push({empresa: value.empresa, data: data});
                 });
-                cargarGraficaCombustible(fechas, data);
-                return false;
+
+                let datasets = [];
+                $.each(datas, function(indexD, valueD) {
+                    let color = getRandomColor();
+                    datasets.push({
+                      label: valueD.empresa,
+                      lineTension: 0.3,
+                      fill: false,
+                      borderColor: color.normal,
+                      pointRadius: 5,
+                      pointBackgroundColor: color.normal,
+                      pointBorderColor: color.opaco,
+                      pointHoverRadius: 5,
+                      pointHoverBackgroundColor: color.normal,
+                      pointHitRadius: 50,
+                      pointBorderWidth: 2,
+                      data: valueD.data,
+                    });
+                });
+
+                cargarGraficaCombustible(fechas, datasets);
             },
             error: function (res) {
                 swal.error(res.responseJSON.message);
-                return false;
             },
             complete: function (res){
                 $("#btnCargar").prop("disabled", false);
@@ -103,7 +148,7 @@ $(function () {
             contentType: 'application/json',
             data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val()}),
             beforeSend: function (xhr){ 
-                xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
                 $("#btnCargar").prop("disabled", true);
             },
             success: function (response) {
@@ -116,11 +161,9 @@ $(function () {
                   dataR.push(value.promRuta);
                 });
                 cargarGraficaPromedios(fechas, dataV, dataR);
-                return false;
             },
             error: function (res) {
                 swal.error(res.responseJSON.message);
-                return false;
             },
             complete: function (res){
                 $("#btnCargar").prop("disabled", false);
@@ -128,26 +171,42 @@ $(function () {
         });
     }
 
-    function cargarGraficaTimbradas(fechas, data){
+    function AjaxGraficaKilometraje() {
+        $.ajax({
+            url: urlAPI + "/tracking/getSumKilometrajeByCarroAndFecha",
+            type: "POST",
+            dataType: 'JSON',
+            contentType: 'application/json',
+            data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), cedula: dataUser.identificacion}),
+            beforeSend: function (xhr){ 
+                xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
+                $("#btnCargar").prop("disabled", true);
+            },
+            success: function (response) {
+                let fechas = new Array();
+                let data =  new Array();
+                $.each(response.data, function(index, value) {
+                    fechas.push(value.fecha);
+                    data.push(parseFloat(value.total));
+                });
+                cargarGraficaKilometraje(fechas, data);
+            },
+            error: function (res) {
+                swal.error(res.responseJSON.message);
+            },
+            complete: function (res){
+                $("#btnCargar").prop("disabled", false);
+            }
+        });
+    }
+
+    function cargarGraficaTimbradas(fechas, datasets){
         var ctx = document.getElementById("myAreaChart");
         myLineChart = new Chart(ctx, {
           type: 'line',
           data: {
             labels: fechas,
-            datasets: [{
-              label: "Timbs.",
-              lineTension: 0.3,
-              backgroundColor: "rgba(0,123,255,0.2)",
-              borderColor: "rgba(0,123,255,0.7)",
-              pointRadius: 5,
-              pointBackgroundColor: "rgba(0,123,255,1)",
-              pointBorderColor: "rgba(0,123,255,0.7)",
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgba(2,117,216,1)",
-              pointHitRadius: 50,
-              pointBorderWidth: 2,
-              data: data,
-            }],
+            datasets: datasets,
           },
           options: {
             title: {
@@ -178,7 +237,7 @@ $(function () {
               }],
             },
             legend: {
-              display: false
+              position: "bottom"
             }
           }
         });
@@ -236,26 +295,13 @@ $(function () {
         });
     }
 
-    function cargarGraficaCombustible(fechas, data){
+    function cargarGraficaCombustible(fechas, datasets){
         var ctx = document.getElementById("myAreaChart");
         myLineChart = new Chart(ctx, {
           type: 'line',
           data: {
             labels: fechas,
-            datasets: [{
-              label: "Combustible",
-              lineTension: 0.3,
-              backgroundColor: "rgba(0,123,255,0.2)",
-              borderColor: "rgba(0,123,255,0.7)",
-              pointRadius: 5,
-              pointBackgroundColor: "rgba(0,123,255,1)",
-              pointBorderColor: "rgba(0,123,255,0.7)",
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgba(2,117,216,1)",
-              pointHitRadius: 50,
-              pointBorderWidth: 2,
-              data: data,
-            }],
+            datasets: datasets,
           },
           options: {
             title: {
@@ -293,7 +339,61 @@ $(function () {
               }],
             },
             legend: {
-              display: false
+              position: "bottom"
+            }
+          }
+        });
+    }
+
+    function cargarGraficaKilometraje(fechas, data){
+        var ctx = document.getElementById("myAreaChart");
+        myLineChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: fechas,
+            datasets: [{
+                label: 'Km Recorridos',
+                borderColor: "#0069d9",
+                backgroundColor: "#0069d9",
+                data: data,
+                lineTension: 0.3,
+                fill: false,
+                pointRadius: 5,
+                pointHoverRadius: 5,
+                pointHitRadius: 50,
+                pointBorderWidth: 2,
+            }],
+          },
+          options: {
+            title: {
+                display: true,
+                text: 'Grafica Kilometros Recorridos',
+                fontSize: 18,
+                fontStyle: 500,
+                padding: 20
+            },
+            scales: {
+              xAxes: [{
+                time: {
+                  unit: 'date'
+                },
+                gridLines: {
+                  display: false
+                },
+                ticks: {
+                }
+              }],
+              yAxes: [{
+                ticks: {
+                    min: 0
+                },
+                gridLines: {
+                  color: "rgba(0, 0, 0, .125)",
+                }
+              }],
+            },
+            legend: {
+              position: "bottom"
             }
           }
         });
@@ -325,6 +425,9 @@ $(function () {
                     return false;
                 }
                 AjaxGraficaPromedioDiario();
+                break;
+            case "Kilometraje":
+                AjaxGraficaKilometraje();
                 break;
         }
     });

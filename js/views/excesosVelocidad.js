@@ -1,6 +1,6 @@
 $(function() {
 
-    const dataUser = JSON.parse(localStorage.getItem('userData'));
+    const dataUser = JSON.parse(localStorage.getItem('userDataGT'));
 
 
     var LatandLong = {lat: 10.9832981, lng: -74.8017122};
@@ -29,12 +29,13 @@ $(function() {
     });
 
     $.ajax({
-        url: urlAPI + "/vehiculos/getVehiculos/"+dataUser.idPropietario,
-        type: "GET",
+        url: urlAPI + "/vehiculos/getVehiculos",
+        type: "POST",
         dataType: 'JSON',
         contentType: 'application/json',
+        data: JSON.stringify({idPropietario: dataUser.idPropietario}),
         beforeSend: function (xhr){ 
-            xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+            xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT'));
         },
         success: function (res){
             $.each(res.data, function(key, value) {
@@ -56,7 +57,7 @@ $(function() {
           dataType: 'JSON',
           contentType: 'application/json',
           beforeSend: function (xhr){ 
-              xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+              xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
               $("#btnCargar").prop("disabled", true);
           },
           success: function (res){

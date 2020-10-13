@@ -1,10 +1,10 @@
 $(function() {
    	
-	if(localStorage.getItem('userData') == null || localStorage.getItem('token') == null){
+	if(localStorage.getItem('userDataGT') == null || localStorage.getItem('tokenGT') == null){
 		cerrarSesion();
 	}
 
-	const dataUser = JSON.parse(localStorage.getItem('userData'));
+	const dataUser = JSON.parse(localStorage.getItem('userDataGT'));
 
 	toast.success("Bienvenido Sr(a) " + dataUser.personalCorto);
 
@@ -52,8 +52,8 @@ $(function() {
 	}
 
 	function cerrarSesion(){
-		localStorage.removeItem('token');
-		localStorage.removeItem('userData');
+		localStorage.removeItem('tokenGT');
+		localStorage.removeItem('userDataGT');
 		$(location).attr('href','../index.html');
 	}
 

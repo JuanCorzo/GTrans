@@ -3,8 +3,6 @@ var urlAPI = "http://192.190.42.212:3000";
 var urlSocketOpto = "ws://192.190.43.26:9001";
 
 
-
-
 var aggregatesRender = function (aggregates) {
 	var value = aggregates['sum'];
 	if( value == null){
@@ -141,7 +139,11 @@ function ToDegrees(radians){
 function ToRad(degrees){
     return degrees * (Math.PI / 180);
 }
-    
+
+function getRandomNumber(limit){
+    return Math.floor(Math.random() * limit);
+}
+
 /* ALERTAS Y MENSAJES */
 
 var toast = {
@@ -192,3 +194,29 @@ var swal = {
     }
 }
 
+let colors = [
+    {normal: "#69f0ae", opaco: "rgba(75,192,192,0.5)"},
+    {normal: "#FF6384", opaco: "rgba(255,99,132,0.5)"},
+    {normal: "#FFCD56", opaco: "rgba(255,205,86,0.5)"},
+    {normal: "#33C5E4", opaco: "rgba(51,197,228,0.5)"},
+    {normal: "#D500F9", opaco: "rgba(213,0,249,0.5)"},
+    {normal: "#FF7043", opaco: "rgba(255,112,67,0.5)"},
+];
+var lastRandomColor = null;
+function getRandomColor(num = 1){
+    let rtn;
+    if(num == 1){
+        let randomPos = getRandomNumber(colors.length);
+        while (lastRandomColor == randomPos) {
+            randomPos = getRandomNumber(colors.length);
+        }
+        lastRandomColor = randomPos;
+        rtn = colors[randomPos];
+    }else{
+        rtn = [];
+        for (let i = 0; i <= num; i++) {
+            rtn.push("rgb(" + getRandomNumber(255) + "," + getRandomNumber(255) + "," + getRandomNumber(255) + ")");
+        }
+    }
+    return rtn;
+}

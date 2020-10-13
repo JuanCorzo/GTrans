@@ -1,6 +1,6 @@
 $(function() {
 
-    const dataUser = JSON.parse(localStorage.getItem('userData'));
+    const dataUser = JSON.parse(localStorage.getItem('userDataGT'));
 
 
 
@@ -9,16 +9,17 @@ $(function() {
     // ---------------------------
 
     $.ajax({
-        url: urlAPI + "/vehiculos/getVehiculos/"+dataUser.idPropietario,
-        type: "GET",
+        url: urlAPI + "/vehiculos/getVehiculos",
+        type: "POST",
         dataType: 'JSON',
         contentType: 'application/json',
+        data: JSON.stringify({idPropietario: dataUser.idPropietario}),
         beforeSend: function (xhr){ 
-            xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+            xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT'));
         },
         success: function (res){
             $.each(res.data, function(key, value) {
-                $("#inpVehiculo").append("<option value="+value.codigo+">"+value.codigo+"</option>");
+                $("#inpVehiculo").append("<option value='"+value.codigo+"-LACAROLINA_GEMA'>"+value.codigo+"</option>");
             });
             AjaxGetGastos();
             return false;
@@ -35,9 +36,9 @@ $(function() {
           type: "POST",
           dataType: 'JSON',
           contentType: 'application/json',
-          data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), idPropietario: dataUser.idPropietario}),
+          data: JSON.stringify({fecha: $("#inpFecha").val(), vehiculo: $("#inpVehiculo").val(), cedula: dataUser.identificacion, empresas: JSON.stringify(dataUser.empresas)}),
           beforeSend: function (xhr){ 
-              xhr.setRequestHeader('Authorization', localStorage.getItem('token')); 
+              xhr.setRequestHeader('Authorization', localStorage.getItem('tokenGT')); 
               $("#btnCargar").prop("disabled", true);
           },
           success: function (res){
@@ -48,11 +49,9 @@ $(function() {
                   }]});
               });
               cargarData(rtn);
-              return false;
           },
           error: function (res){
               swal.error(res.responseJSON.message);
-              return false;
           },
           complete: function (res){
               $("#btnCargar").prop("disabled", false);
